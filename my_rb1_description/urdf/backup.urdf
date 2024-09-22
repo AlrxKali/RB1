@@ -13,10 +13,6 @@
     <material name="blue"> 
         <color rgba="0 0 1 0.8"/> 
     </material> 
-
-    <material name="read"> 
-        <color rgba="0 1 0 1.0"/> 
-    </material> 
     
     <!-- Base Footprint --> 
     <link name="base_footprint">
@@ -47,7 +43,7 @@
                 <cylinder radius="0.25" length="0.3"/> 
             </geometry> 
             <origin xyz="0 0 0"/> 
-            <material name="blue"/> 
+            <material name="black"/> 
         </visual> 
         <collision> 
             <geometry> 
@@ -61,7 +57,7 @@
     <joint name="base_footprint_joint" type="fixed">
         <parent link="base_footprint"/> 
         <child link="base_link"/> 
-        <origin xyz="0 0 0.175" rpy="0 0 0"/>
+        <origin xyz="0 0 0.175" rpy="0 0 0"/> <!-- Elevated to ensure wheels touch the ground -->
     </joint> 
     
     <!-- Left Wheel --> 
@@ -75,21 +71,21 @@
             <geometry> 
                 <cylinder radius="0.025" length="0.02"/> 
             </geometry> 
-            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
-            <material name="red"/> 
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/> <!-- Rotated 90 degrees around X-axis -->
+            <material name="grey"/> 
         </visual> 
         <collision> 
             <geometry> 
                 <cylinder radius="0.025" length="0.02"/> 
             </geometry> 
-            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/> <!-- Rotated 90 degrees around X-axis -->
         </collision> 
     </link> 
 
     <joint name="left_wheel_joint" type="continuous">
         <parent link="base_link"/> 
         <child link="left_wheel"/> 
-        <origin xyz="0.0 0.2 -0.15" rpy="0 0 0"/>
+        <origin xyz="0.0 0.2 -0.15" rpy="0 0 0"/> <!-- Adjusted Z to ensure contact -->
         <axis xyz="0 -1 0"/> 
         <dynamics friction="0"/> 
     </joint> 
@@ -105,21 +101,21 @@
             <geometry> 
                 <cylinder radius="0.025" length="0.02"/> 
             </geometry> 
-            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
-            <material name="red"/> 
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/> <!-- Rotated 90 degrees around X-axis -->
+            <material name="grey"/> 
         </visual> 
         <collision> 
             <geometry> 
                 <cylinder radius="0.025" length="0.02"/> 
             </geometry> 
-            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/> <!-- Rotated 90 degrees around X-axis -->
         </collision> 
     </link> 
 
     <joint name="right_wheel_joint" type="continuous">
         <parent link="base_link"/> 
         <child link="right_wheel"/> 
-        <origin xyz="0.0 -0.2 -0.15" rpy="0 0 0"/>
+        <origin xyz="0.0 -0.2 -0.15" rpy="0 0 0"/> <!-- Adjusted Z to ensure contact -->
         <axis xyz="0 1 0"/> 
         <dynamics friction="0"/> 
     </joint> 
@@ -149,7 +145,7 @@
     <joint name="front_caster_joint" type="fixed"> 
         <parent link="base_link"/> 
         <child link="front_caster"/> 
-        <origin xyz="0.1 0.0 -0.15" rpy="0 0 0"/>
+        <origin xyz="0.1 0.0 -0.15" rpy="0 0 0"/> <!-- Adjusted Z to ensure contact -->
     </joint> 
     
     <!-- Back Caster --> 
@@ -177,7 +173,7 @@
     <joint name="back_caster_joint" type="fixed"> 
         <parent link="base_link"/> 
         <child link="back_caster"/> 
-        <origin xyz="-0.1 0.0 -0.15" rpy="0 0 0"/>
+        <origin xyz="-0.1 0.0 -0.15" rpy="0 0 0"/> <!-- Adjusted Z to ensure contact -->
     </joint> 
     
     <!-- Front Laser --> 
@@ -207,5 +203,87 @@
         <child link="front_laser"/> 
         <origin xyz="0.25 0.0 0.075" rpy="3.1416 0 0"/> 
     </joint> 
+
+    <!-- Transmission Elements -->
+
+    <!-- Left Wheel Transmission -->
+    <transmission name="left_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="left_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="left_wheel_motor">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </actuator>
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
+    <!-- Right Wheel Transmission -->
+    <transmission name="right_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="right_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="right_wheel_motor">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </actuator>
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+
+    <!-- Gazebo ROS Control Plugin -->
+    <gazebo>
+      <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+        <robotNamespace>/</robotNamespace>
+      </plugin>
+    </gazebo>
+
+    <!-- Gazebo Material and Friction Parameters --> 
+    <gazebo reference="base_link"> 
+        <material>Gazebo/Black</material> 
+    </gazebo> 
+
+    <gazebo reference="left_wheel"> 
+        <material>Gazebo/Grey</material>
+        <friction> 
+            <ode> 
+                <mu>1.0</mu> 
+                <mu2>1.0</mu2> 
+            </ode>
+        </friction> 
+    </gazebo> 
+
+    <gazebo reference="right_wheel"> 
+        <material>Gazebo/Grey</material>
+        <friction> 
+            <ode> 
+                <mu>1.0</mu> 
+                <mu2>1.0</mu2> 
+            </ode>
+        </friction> 
+    </gazebo> 
+
+    <gazebo reference="front_caster"> 
+        <material>Gazebo/Grey</material> 
+        <friction> 
+            <ode> 
+                <mu>1.0</mu> 
+                <mu2>1.0</mu2> 
+            </ode>
+        </friction> 
+    </gazebo> 
+
+    <gazebo reference="back_caster"> 
+        <material>Gazebo/Grey</material> 
+        <friction> 
+            <ode> 
+                <mu>1.0</mu> 
+                <mu2>1.0</mu2> 
+            </ode>
+        </friction> 
+    </gazebo> 
+
+    <gazebo reference="front_laser"> 
+        <material>Gazebo/Grey</material> 
+    </gazebo>
 
 </robot>
